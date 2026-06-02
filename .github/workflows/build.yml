@@ -47,7 +47,6 @@ jobs:
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          # Macのクロスコンパイル用ターゲットを正しく指定
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: Rust cache
@@ -58,14 +57,13 @@ jobs:
       - name: install frontend dependencies
         run: yarn install
 
-      # 🌟 ここを v0 から Tauri v2 に完全対応した最新バージョンに変更します
-      - uses: tauri-apps/tauri-action@v0.5
+      - uses: tauri-apps/tauri-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: app-v__VERSION__
           releaseName: 'App v__VERSION__'
           releaseBody: 'See the assets to download this version and install.'
-          releaseDraft: true
+          releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
