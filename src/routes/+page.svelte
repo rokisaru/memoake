@@ -14,7 +14,7 @@
   let isConfirmingDelete = $state(false);
 
   const getTitle = (content: string) => {
-    return content.trim().split("\n")[0] || "無題のメモ";
+    return content.trim().split("\n")[0] || "No title";
   };
 
   async function handleKeyDown(event: KeyboardEvent) {
@@ -56,7 +56,6 @@
         activeId = newMemo.id;
         event.preventDefault();
         return;
-      default:
         break;
     }
 
@@ -68,6 +67,16 @@
         event.preventDefault();
       }
       return;
+    }
+
+    if (event.ctrlKey && event.key === "z") {
+      event.preventDefault();
+      document.execCommand("undo", false);
+      return
+    } else if (event.ctrlKey && event.key === "Z") {
+      event.preventDefault();
+      document.execCommand("redo", false);
+      return
     }
   }
 
