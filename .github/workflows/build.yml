@@ -1,8 +1,10 @@
 name: publish
 on:
   push:
-    tags:
-      - 'app-v*'
+    branches:
+      - main
+    paths:
+      - 'src-tauri/tauri.conf.json'
   workflow_dispatch:
 
 jobs:
