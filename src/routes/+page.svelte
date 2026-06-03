@@ -110,9 +110,10 @@
   {#if activeId === null}
     <div class="header">
       <div class="logo">memoake</div>
-      <div class="shortcuts">
-        <span>[C] 新規作成</span>
-        <span>[1-9] 数字キーで即選択</span>
+      <div>
+        <span>[C] Create new memo</span>
+        <span style="color: #45475a; margin: 0 10px;">|</span>
+        <span>[1-9] Open memo</span>
       </div>
     </div>
 
@@ -125,7 +126,7 @@
           </div>
           <div class="tile-title">{getTitle(project.content)}</div>
           <div class="tile-preview">
-            {project.content.split("\n").slice(1).join(" ") || "本文なし"}
+            {project.content.split("\n").slice(1).join(" ") || "Empty memo"}
           </div>
         </button>
       {/each}
@@ -135,10 +136,12 @@
       <div class="editor-header" class:danger={isConfirmingDelete}>
         {#if isConfirmingDelete}
           <span class="alert-text"
-            >⚠️ 本当にこのメモを削除しますか？ [Y] 削除 / [N] キャンセル</span
+            >⚠️ Are you sure you want to delete this memo? [Y] Yes / [N] No</span
           >
         {:else}
-          <span>編集モード — [Ctrl+D] 削除 — [Esc] で一覧に戻る</span>
+          <span>[Ctrl+D] Delete</span>
+          <span style="color: #45475a; margin: 0 10px;">|</span>
+          <span>[Esc] Return to list</span>
         {/if}
       </div>
       <textarea
@@ -187,13 +190,6 @@
   .logo {
     font-weight: bold;
     color: #cba6f7;
-  }
-
-  .shortcuts {
-    font-size: 0.85rem;
-    color: #a6adc8;
-    display: flex;
-    gap: 15px;
   }
 
   .grid {
