@@ -102,7 +102,7 @@ pub fn run() {
     if std::env::var("RUST_LOG").is_err() {
         std::env::set_var("RUST_LOG", "error");
     }
-    let toggle_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::Space);
+    let toggle_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyJ);
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .manage(WindowState {
