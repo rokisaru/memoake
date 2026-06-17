@@ -31,7 +31,6 @@
         event.preventDefault();
         isConfirmingDelete = true;
         return;
-      // 削除の確認（Yes）
       case "y":
         if (!isConfirmingDelete || currentMemo === undefined) return;
         const idToDelete = currentMemo.id;
@@ -44,7 +43,6 @@
           console.log("Failed to delete a memo", err);
         }
         return;
-      // 削除の確認（No）
       case "n":
         if (!isConfirmingDelete || currentMemo === undefined) return;
         event.preventDefault();
@@ -52,14 +50,13 @@
         return;
       case "c":
         if (activeId !== null) return;
+        event.preventDefault();
         const newMemo: Memo = await invoke("create_memo", { content: "" });
         memos = [...memos, newMemo];
         activeId = newMemo.id;
-        event.preventDefault();
         return;
     }
 
-    // 数字を指定してメモを選択して開く
     if (key >= "1" && key <= "9" && activeId === null) {
       const index = parseInt(event.key) - 1;
       if (memos[index]) {
@@ -126,20 +123,29 @@
       </div>
     </div>
 
-    <div class="grid">
-      {#each memos as project, index}
-        <button class="tile" onclick={() => (activeId = project.id)}>
-          <div class="tile-header">
-            <span class="badge">[{index + 1}]</span>
-            <span class="tile-footer">{project.updated_at}</span>
-          </div>
-          <div class="tile-title">{getTitle(project.content)}</div>
-          <div class="tile-preview">
-            {project.content.split("\n").slice(1).join(" ") || "Empty memo"}
-          </div>
-        </button>
-      {/each}
-    </div>
+    {#if memos.length > 0}
+      <div class="grid">
+        {#each memos as project, index}
+          <button class="tile" onclick={() => (activeId = project.id)}>
+            <div class="tile-header">
+              <span class="badge">[{index + 1}]</span>
+              <span class="tile-footer">{project.updated_at}</span>
+            </div>
+            <div class="tile-title">{getTitle(project.content)}</div>
+            <div class="tile-preview">
+              {project.content.split("\n").slice(1).join(" ") || "Empty memo"}
+            </div>
+          </button>
+        {/each}
+      </div>
+    {:else}
+      <div class="empty-state">
+        <p class="empty-title">No memos cached</p>
+        <p class="empty-hint">
+          Press <kbd class="key">C</kbd> to initialize a new scratchpad
+        </p>
+      </div>
+    {/if}
   {:else if currentMemo}
     <div class="editor-container">
       <div class="editor-header" class:danger={isConfirmingDelete}>
@@ -286,16 +292,15 @@
   }
 
   .editor-header.danger {
-    background: #f38ba8; /* CatppuccinのRed */
-    color: #11111b; /* 暗い背景色にして文字をクッキリ */
+    background: #f38ba8;
+    color: #11111b;
     font-weight: bold;
   }
 
   .alert-text {
-    animation: blink 1s infinite alternate; /* 文字を少しだけ明滅させて緊張感を出す */
+    animation: blink 1s infinite alternate;
   }
 
-  /* 確認中、テキストエリアをうっすら暗くしてフォーカスがヘッダーにあることを示す */
   .editor.blur {
     opacity: 0.5;
     border-color: #f38ba8;
@@ -324,5 +329,90 @@
     resize: none;
     outline: none;
     font-family: monospace;
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+    opacity: 0.6;
+  }
+
+  .empty-title {
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin: 0 0 0.25rem 0;
+  }
+
+  .empty-hint {
+    font-size: 0.8rem;
+    font-family: monospace;
+  }
+
+  .key {
+    background: var(--tile-bg-active, #333);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    border: 1px solid #555;
+  }
+
+  .empty-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    color: #eee;
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 60vh;
+    width: 100%;
+    box-sizing: border-box;
+
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .empty-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #eee;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .empty-hint {
+    font-size: 0.85rem;
+    font-family: monospace;
+    color: #666;
+    margin: 0;
+  }
+
+  .key {
+    font-family: monospace;
+    font-weight: bold;
+    background: #2a2a2a;
+    color: #a855f7;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 0.15rem 0.4rem;
+    margin: 0 0.2rem;
+    box-shadow: 0 2px 0 #1a1a1a;
+  }
+
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 </style>
