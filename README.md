@@ -2,6 +2,8 @@
 
 A friction-free, lightweight dropdown scratchpad designed for developers who want to dump their thoughts without leaving the home position.
 
+https://github.com/user-attachments/assets/2406979f-8b73-48a3-a8e2-6ea224e2afa7
+
 ## Overview
 
 `memoake` is a keyboard-driven, overlay-style scratchpad inspired by **Yakuake**. With a single global shortcut, it drops down instantly from the top of your screen and vanishes just as quickly when you're done. Built with a minimalist philosophy, it eliminates the overhead of managing files or context switching during deep work.
