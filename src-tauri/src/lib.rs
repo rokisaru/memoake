@@ -46,10 +46,7 @@ fn get_config(app_handle: tauri::AppHandle) -> Result<AppConfig, String> {
 }
 
 #[tauri::command]
-fn update_config(
-    new_config: AppConfig,
-    app_handle: tauri::AppHandle,
-) -> Result<AppConfig, String> {
+fn update_config(new_config: AppConfig, app_handle: tauri::AppHandle) -> Result<AppConfig, String> {
     let normalized = config::AppConfig::from(new_config).normalize(&app_handle)?;
     config::save(&app_handle, &normalized)?;
     Ok(normalized.into())
@@ -73,9 +70,54 @@ fn hide_main_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     Ok(())
 }
 
+#[tauri::command]
+fn set_compact_mode(app_handle: tauri::AppHandle, compact: bool) -> Result<(), String> {
+    if let Some(window) = app_handle.get_webview_window("main") {
+        resize_window(&window, compact)?;
+    }
+    Ok(())
+}
+
 fn hide_window(window: &WebviewWindow) -> Result<(), String> {
     window.set_always_on_top(false).map_err(|e| e.to_string())?;
     window.hide().map_err(|e| e.to_string())
+}
+
+fn resize_window(window: &WebviewWindow, compact: bool) -> Result<(), String> {
+    use tauri::{PhysicalPosition, PhysicalSize, Position, Size};
+
+    let Some(monitor) = window.current_monitor().map_err(|e| e.to_string())? else {
+        return Ok(());
+    };
+
+    let monitor_pos = monitor.position();
+    let monitor_size = monitor.size();
+
+    let window_width = (monitor_size.width / 2)
+        .clamp(520, 680)
+        .min(monitor_size.width);
+    let window_height = if compact {
+        (monitor_size.height / 6).clamp(150, 190)
+    } else {
+        (monitor_size.height / 3).clamp(320, 420)
+    }
+    .min(monitor_size.height);
+
+    window
+        .set_size(Size::Physical(PhysicalSize::new(
+            window_width,
+            window_height,
+        )))
+        .map_err(|e| e.to_string())?;
+
+    let target_x = monitor_pos.x + ((monitor_size.width as i32 - window_width as i32) / 2);
+    let target_y = monitor_pos.y;
+
+    window
+        .set_position(Position::Physical(PhysicalPosition::new(
+            target_x, target_y,
+        )))
+        .map_err(|e| e.to_string())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -102,30 +144,8 @@ pub fn run() {
                                     if *is_visible_guard {
                                         let _ = hide_window(&window);
                                         *is_visible_guard = false;
-                                    } else if let Ok(Some(monitor)) = window.current_monitor() {
-                                        use tauri::{
-                                            PhysicalPosition, PhysicalSize, Position, Size,
-                                        };
-
-                                        let monitor_pos = monitor.position();
-                                        let monitor_size = monitor.size();
-
-                                        let window_width = monitor_size.width / 3 * 2;
-                                        let window_height = monitor_size.height / 5 * 2;
-
-                                        let _ = window.set_size(Size::Physical(
-                                            PhysicalSize::new(window_width, window_height),
-                                        ));
-
-                                        let target_x = monitor_pos.x
-                                            + ((monitor_size.width as i32 - window_width as i32)
-                                                / 2);
-                                        let target_y = monitor_pos.y;
-
-                                        let _ = window.set_position(Position::Physical(
-                                            PhysicalPosition::new(target_x, target_y),
-                                        ));
-
+                                    } else {
+                                        let _ = resize_window(&window, true);
                                         let _ = window.show();
                                         let _ = window.unminimize();
                                         let _ = window.set_always_on_top(true);
@@ -159,7 +179,8 @@ pub fn run() {
             get_config,
             update_config,
             save_memo,
-            hide_main_window
+            hide_main_window,
+            set_compact_mode
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

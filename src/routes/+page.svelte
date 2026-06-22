@@ -73,6 +73,12 @@
     }
   }
 
+  $effect(() => {
+    invoke("set_compact_mode", { compact: !showSettings }).catch((err) => {
+      console.error("failed to resize window", err);
+    });
+  });
+
   async function pickFolder() {
     const selected = await open({ directory: true, multiple: false });
     if (typeof selected === "string") {
