@@ -4,6 +4,11 @@ on:
     branches:
       - main
     paths:
+      - '.github/workflows/build.yml'
+      - 'package.json'
+      - 'yarn.lock'
+      - 'src/**'
+      - 'src-tauri/**'
       - 'src-tauri/tauri.conf.json'
   workflow_dispatch:
 
@@ -45,6 +50,9 @@ jobs:
         with:
           node-version: lts/*
           cache: 'yarn'
+
+      - name: enable corepack
+        run: corepack enable
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
